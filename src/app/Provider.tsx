@@ -7,6 +7,9 @@ import { UserDetailContext } from '@/context/userDetailsContext'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { useConvex } from "convex/react"
 import { api } from "../../convex/_generated/api"
+import { Sidebar } from "lucide-react"
+import { SidebarProvider } from "@/components/ui/sidebar"
+import { AppSidebar } from "@/components/custom/AppSidebar"
 
 interface ProviderProps {
   children: React.ReactNode
@@ -53,7 +56,10 @@ const Provider = ({ children }: ProviderProps) => {
               disableTransitionOnChange
             >
               <Header />
+              <SidebarProvider defaultOpen={false}>
+              <AppSidebar/>
               {children}
+              </SidebarProvider>
             </NextThemesProvider>
           </MessagesContext.Provider>
         </UserDetailContext.Provider>

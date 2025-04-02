@@ -15,6 +15,7 @@ import { useConvex, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useParams } from "next/navigation";
 import { Loader2Icon } from "lucide-react";
+import { Id } from "../../../convex/_generated/dataModel";
 
 function CodeView() {
   const { id } = useParams();
@@ -24,18 +25,20 @@ function CodeView() {
   const UpdateFiles = useMutation(api.workspace.UpdateFiles);
   const convex = useConvex();
   const [loading, setLoading] = useState(false); 
-
+  
   useEffect(() => {
     id && GetFiles();
   }, [id]);
-
+  
   const GetFiles = async () => {
     setLoading(true);
     const result = await convex.query(api.workspace.GetWorkspace, {
-      workspaceId: id
+      workspaceId: id as Id<"workspace">
     });
-    const mergedFiles = { ...Lookup.DEFAULT_FILE, ...result?.fileData };
-    setFiles(mergedFiles);
+    if (result?.fileData) {
+      const mergedFiles = { ...Lookup.DEFAULT_FILE, ...result.fileData };
+      setFiles(mergedFiles);
+    }
     setLoading(false);
   }
 
@@ -51,22 +54,81 @@ function CodeView() {
   const GenAiCode = async () => {
     setLoading(true);
     const PROMPT = JSON.stringify(messages) + " " + Prompt.CODE_GEN_PROMPT;
-    const result = await axios.post('/api/gen-ai-code', {
-      prompt: PROMPT
-    });
-    console.log(result.data);
-    const aiResp = result.data;
-
-    if (aiResp?.files) {
-      const mergedFiles = { ...Lookup.DEFAULT_FILE, ...aiResp.files };
-      setFiles(mergedFiles);
-      await UpdateFiles({
-        workspace: id,
-        files: aiResp.files
+    try {
+      const result = await axios.post('/api/gen-ai-code', {
+        prompt: PROMPT
       });
+      const aiResp = result.data;
+  
+      if (aiResp?.files) {
+        // First, normalize all paths and move everything to /src
+        const newFiles = Object.entries(aiResp.files).reduce<Record<string, { code: string }>>((acc, [path, content]) => {
+          // Skip files in root that should be in src
+          if (['/App.jsx', '/App.js', '/App.css', '/index.js'].includes(path)) {
+            return acc;
+          }
+
+          let normalizedPath = path.startsWith('/') ? path : `/${path}`;
+          
+          // Move components to src/components
+          if (normalizedPath.includes('components/')) {
+            normalizedPath = normalizedPath.replace('components/', 'src/components/');
+          } 
+          // Move App and related files to src
+          else if (normalizedPath.endsWith('App.jsx') || 
+                   normalizedPath.endsWith('App.js') || 
+                   normalizedPath.endsWith('App.css')) {
+            normalizedPath = `/src${normalizedPath}`;
+          }
+          // Move other files to src if not already there
+          else if (!normalizedPath.startsWith('/src/')) {
+            normalizedPath = `/src${normalizedPath}`;
+          }
+
+          acc[normalizedPath] = {
+            code: typeof content === 'string' ? content : (content as { code: string }).code
+          };
+          return acc;
+        }, {});
+
+        // Update App.jsx to include component imports
+        if (Object.keys(newFiles).some(path => path.includes('/src/components/'))) {
+          const componentImports = Object.keys(newFiles)
+            .filter(path => path.includes('/src/components/'))
+            .map(path => {
+              const componentName = path.split('/').pop()?.replace('.jsx', '');
+              return `import ${componentName} from './components/${componentName}';`;
+            })
+            .join('\n');
+
+          const appJsxPath = '/src/App.jsx';
+          const existingAppCode = newFiles[appJsxPath]?.code || '';
+          
+          // Insert imports at the beginning of the file
+          newFiles[appJsxPath] = {
+            code: `import React from 'react';\nimport './App.css';\n${componentImports}\n\n${existingAppCode}`
+          };
+        }
+
+        const mergedFiles = {
+          ...Lookup.DEFAULT_FILE,
+          ...Lookup.VITE_CONFIG,
+          ...newFiles,
+          '/src/App.jsx': newFiles['/src/App.jsx'] || Lookup.DEFAULT_APP['/src/App.jsx']
+        };
+
+        setFiles(mergedFiles);
+        await UpdateFiles({
+          workspace: id as Id<"workspace">,
+          files: newFiles
+        });
+      }
+    } catch (error) {
+      console.error('Error generating code:', error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  }
+  };
 
   return (
     <div className="relative">
@@ -81,6 +143,8 @@ function CodeView() {
       <SandpackProvider template="react" theme={'dark'}
         files={files}
         customSetup={{
+          entry: "/src/main.jsx",
+          environment: "node",
           dependencies: {
             ...Lookup.DEPENDENCY
           }

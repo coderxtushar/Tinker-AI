@@ -1,32 +1,50 @@
-const HERO_READING = "What do you want to do ??"
-const HERO_DESC = "Generate any website in nano seconds..."
-const INPUT_PLACEHOLDER = "How can we help you today?"
+const HERO_READING = "What do you want to do ??";
+const HERO_DESC = "Generate any website in nano seconds...";
+const INPUT_PLACEHOLDER = "How can we help you today?";
 const SUGGESTION = {
-    1: "Build a mobile app with Expo",
-    2: "Start a blog with Astro",
-    3: "Create a docs site with Vitepress",
-    4: "Scaffold UI with shadcn",
-    5: "Draft a presentation with Slidev",
-    6: "Code a video with Remotion"
-}
-const SIGNIN_HEADING = "Continue with tinker ai"
-const SIGNIN_SUBHEADING = "To use tinker ai you must log into an existing account or create one."
-const SIGNIN_AGREEMENT_TEXT = "By using tinker ai, you agree to the collection of usage data for analytics."
+  1: "Build a mobile app with Expo",
+  2: "Start a blog with Astro",
+  3: "Create a docs site with Vitepress",
+  4: "Scaffold UI with shadcn",
+  5: "Draft a presentation with Slidev",
+  6: "Code a video with Remotion",
+};
+const SIGNIN_HEADING = "Continue with tinker ai";
+const SIGNIN_SUBHEADING = "To use tinker ai you must log into an existing account or create one.";
 
-const DEPENDENCY = {
-    react: "^17.0.2",
-    "react-dom": "^17.0.2",
-    next: "^12.0.7",
-    axios: "^0.24.0",
-    "next-themes": "^0.0.15",
-    "tailwindcss": "^3.0.0",
-    "postcss": "^8.0.0",
-    "autoprefixer": "^10.0.0"
-}
-
-const DEFAULT_FILE = {
-  '/App.js': {
+const VITE_CONFIG = {
+  "/src/main.jsx": {
     code: `import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App.jsx';
+import './App.css';
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);`,
+  },
+  "/index.html": {
+    code: `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>React App</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>`,
+  },
+};
+
+const DEFAULT_APP = {
+  "/src/App.jsx": {
+    code: `import React from 'react';
+import './App.css';
 
 function App() {
   return (
@@ -39,68 +57,88 @@ function App() {
   );
 }
 
-export default App;
-`
+export default App;`,
   },
-  '/index.html': {
-    code: `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Document</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body>
-  <div id="root"></div>
-</body>
-</html>`
+  "/src/App.css": {
+    code: `@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}`,
   },
-  '/App.css': {
-    code: `
-    @tailwind base;
-    @tailwind utilities;
-    @tailwind components;
-    `
+};
+
+const DEPENDENCY = {
+  react: "^18.2.0",
+  "react-dom": "^18.2.0",
+  "@vitejs/plugin-react": "^4.2.0",
+  tailwindcss: "^3.3.0",
+  postcss: "^8.4.0",
+  autoprefixer: "^10.4.0",
+};
+
+const DEFAULT_FILE = {
+  ...VITE_CONFIG,
+  ...DEFAULT_APP,
+  "/src/components/ExampleComponent.jsx": {
+    code: `import React from 'react';
+
+function ExampleComponent() {
+  return (
+    <div className="p-4 bg-blue-100 rounded-lg">
+      <h2 className="text-lg font-semibold">Example Component</h2>
+      <p className="text-gray-600">This is an example component.</p>
+    </div>
+  );
+}
+
+export default ExampleComponent;`,
   },
-  '/tailwind.config.js': {
-    code: `
-    /** @type {import('tailwindcss').Config} */
-    module.exports = {
-      content: [
-        "./src/**/*.{js,jsx,ts,tsx}",
-      ],
-      theme: {
-        extend: {},
-      },
-      plugins: [],
-    }
-    `
+  "/package.json": {
+    code: `{
+  "name": "your-project-name",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "start": "vite"
   },
-  '/postcss.config.js': {
-    code: `
-    /** @type {import('postcss-load-config').Config} */
-    const config = {
-      plugins: {
-        tailwindcss: {},
-        autoprefixer: {},
-      },
-    };
-    export default config;
-    `
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tailwindcss": "^3.3.0",
+    "postcss": "^8.4.0",
+    "autoprefixer": "^10.4.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.0",
+    "vite": "^4.0.0",
+    "typescript": "^5.0.0",
+    "eslint": "^8.0.0"
   }
-}
+}`,
+  },
+};
 
-const Lookup = {
-    HERO_READING,
-    HERO_DESC,
-    INPUT_PLACEHOLDER,
-    SUGGESTION,
-    SIGNIN_HEADING,
-    SIGNIN_SUBHEADING, 
-    SIGNIN_AGREEMENT_TEXT,
-    DEPENDENCY,
-    DEFAULT_FILE
-}
-
-export default Lookup
+export default {
+  HERO_READING,
+  HERO_DESC,
+  INPUT_PLACEHOLDER,
+  SUGGESTION,
+  SIGNIN_HEADING,
+  SIGNIN_SUBHEADING,
+  DEPENDENCY,
+  DEFAULT_FILE,
+  VITE_CONFIG,
+  DEFAULT_APP,
+};

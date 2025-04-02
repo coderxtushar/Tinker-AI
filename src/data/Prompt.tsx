@@ -9,38 +9,32 @@ export default {
     - Skip code examples and commentary'
     `,
     CODE_GEN_PROMPT:dedent`
-        Generate a Project in React. Create multiple components, organizing the directory structure
+        Generate a Project in React. Create multiple components, organizing the directory structure,
+        IMPORTANT: Always include a complete App.jsx file with the main application logic.
     Return the response in JSON format with the following schema:
-    "projectTitle": "",
-    "explanation": "",
-    "files": {
-    "/App.js": {
-    "code": ""
-    },
+    {
+          "projectTitle": "",
+          "explanation": "",
+          "files": {
+            "/src/App.jsx": {
+              "code": "// Complete React component code here"
+            },
+            "/src/components/ComponentName.jsx": {
+              "code": "// Component code here"
+            }
+          }
+        }
     "generatedFiles": []
-    Here's the reformatted and improved version of your prompt:
-    Generate a programming code structure for a React project using Vite
-    Return the response in JSON format with the following schema:
-    json
-    Copy code
-    "projectTitle":
-    "explanation": ""
-    'files": {
-    "/App.js": {
-    "code": "
-    },
-        Ensure the files field contains all created files, and the generatedFi
-    files: {
-    "/App. js": {
-    "code": "import React from 'react'; \nimport './styles. css' ; \nexpor
-    Additionally, include an explanation of the project's structure, pur
-    - For placeholder images, please use a https://archive.org/download
-    -Add Emoji icons whenever needed to give good user experinence
-    - The lucide-react library is also available to be imported IF NECC
-
-...
-
-    
-    
+    Guidelines:
+         - Always provide the main component in /src/App.jsx
+        - Place all components in /src/components/
+        - Include all necessary imports
+        - Use Tailwind CSS for styling
+        - Ensure proper file paths (start with /src/)
+        - Components should be interactive and demonstrate React features
+        - Add comments to explain complex logic
+        - For placeholder images, use https://archive.org/download
+        - Add Emoji icons when needed for UX
+        - Import from lucide-react if needed    
     `
 }

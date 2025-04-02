@@ -13,6 +13,7 @@ import { ArrowRight, Link, Loader2Icon } from 'lucide-react';
 import axios from 'axios';
 import PROMPT from '@/data/Prompt';
 import ReactMarkdown from "react-markdown";
+import { useSidebar } from '../ui/sidebar';
 
 function ChatView() {
   const { id } = useParams();
@@ -22,6 +23,7 @@ function ChatView() {
   const [userInput, setUserInput] = useState('');
   const [loading, setLoading] = useState(false);
   const UpdateMessages = useMutation(api.workspace.UpdateMesssages);
+  const {toggleSidebar} = useSidebar();
   useEffect(() => {
     if (typeof id === 'string') {
       GetWorkspaceData(id as Id<"workspace">);
@@ -79,7 +81,7 @@ function ChatView() {
   }
 
   return <div className='relative h-[85vh] flex flex-col'>
-    <div className='flex-1 overflow-y-scroll scrollbar-hide'>
+    <div className='flex-1 overflow-y-scroll scrollbar-hide pl-5'>
       {messages?.map((msg,index)=>(
         <div key={index} 
         className='p-3 rounded-lg mb-2 flex gap-2 items-start leading-7'
@@ -102,6 +104,11 @@ function ChatView() {
         <h2>Generating Response...</h2>
       </div>}
     </div>
+    <div className='flex gap-2 items-end'>
+      {userDetail&&<Image src={userDetail?.picture}
+      className='rounded-full cursor-pointer'
+      onClick={toggleSidebar}
+      alt='user' width={30} height={30}/>}
     <div className='p-5 border rounded-xl max-w-xl w-full mt-3'
         style={{
           backgroundColor: Colors.BACKGROUND
@@ -119,6 +126,7 @@ function ChatView() {
         <div>
           <Link className='h-5 w-5' />
         </div>
+      </div>
       </div>
     
   </div>;
