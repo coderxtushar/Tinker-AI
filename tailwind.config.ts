@@ -1,13 +1,18 @@
 import type { Config } from "tailwindcss";
 
 export default {
+<<<<<<< HEAD
     darkMode: ["class"],
     content: [
+=======
+  content: [
+>>>>>>> c42486903267cf425d59335ad0160a589c36d991
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+<<<<<<< HEAD
   	extend: {
   		colors: {
   			background: 'hsl(var(--background))',
@@ -69,4 +74,14 @@ export default {
   	}
   },
   plugins: [require("tailwindcss-animate"), require("tailwind-scrollbar-hide")],
+=======
+    extend: {
+      colors: {
+        background: "var(--background)",
+        foreground: "var(--foreground)",
+      },
+    },
+  },
+  plugins: [],
+>>>>>>> c42486903267cf425d59335ad0160a589c36d991
 } satisfies Config;
